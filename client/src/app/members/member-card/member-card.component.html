@@ -8,12 +8,12 @@
         </button>
       </li>
       <li class="list-inline-item" (click)="addLike(member)">
-        <button class="btn btn-primary">
+        <button class="btn btn-danger">
           <i class="fa fa-heart"></i>
         </button>
       </li>
       <li class="list-inline-item">
-        <button class="btn btn-primary" routerLink='/members/{{member.username}}' [queryParams]='{tab: 3}'>
+        <button class="btn btn-success" routerLink='/members/{{member.username}}' [queryParams]='{tab: 3}'>
           <i class="fa fa-envelope"></i>
         </button>
       </li>
