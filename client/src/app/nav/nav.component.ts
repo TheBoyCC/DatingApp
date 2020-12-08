@@ -1,34 +1,46 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
-import { User } from '../_models/user';
+import { Message } from '../_models/message';
 import { AccountService } from '../_services/account.service';
+import { MessageService } from '../_services/message.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-nav',
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.css']
 })
 export class NavComponent implements OnInit {
   model: any = {};
+  container = 'Unread';
+  messages: Message[];
+  unreadMessages: number;
+ 
+  constructor(public accountService: AccountService, private router: Router, private toastr: ToastrService, private messageService: MessageService) { }
 
-  constructor(public accountService: AccountService, private router: Router, private toastr: ToastrService) { }
-
-  ngOnInit(): void {
+  ngOnInit(): void {   
+    this.loadMessages();
   }
 
   login() {
-    this.accountService.login(this.model).subscribe(response => {
-      this.router.navigateByUrl("/members");
+    this.accountService.login(this.model).subscribe(() => {
+      this.loadMessages();
+      this.router.navigateByUrl("/members");      
+    }, () => {
+      this.toastr.error("Invalid credentials", "Login Failed");
     })
   }
 
   logout() {
     this.accountService.logout();
-    this.router.navigateByUrl("/")
+    this.router.navigateByUrl("/");
   }
 
-  
-
+  loadMessages() {
+    this.messageService.getMessages(1, 5, this.container).subscribe(response => {
+      this.messages = response.result;   
+      this.unreadMessages = this.messages.length;
+    })
+  }
 }

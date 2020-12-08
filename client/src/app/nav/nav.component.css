@@ -2,8 +2,76 @@
   cursor: pointer;
 }
 
-img {
-  max-height: 50px;
+.img-circle {
+  height: 26px;
+  width: 26px;
   /* border: 2px solid #fff; */
   display: inline;
+}
+
+.box-md {
+  width: 400px;
+}
+
+.chat {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chat li {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dotted #B3A9A9;
+}
+
+.rounded-circle {
+  height: 26px;
+  width: 26px;
+}
+
+
+.img-notification {
+  float: left;
+  width: 26px;
+  height: 26px;
+  border-radius: 50px;
+}
+
+.notifications-box {
+  border: #ddd solid 1px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notifications-box li {
+  line-height: 26px;
+  position: relative;
+  padding: 10px;
+  margin: 10px;
+  border-bottom: 1px dotted #B3A9A9;
+}
+
+.notifications-box li .notification-text {
+  float: left;
+}
+
+.notifications-box li .notification-time {
+  font-size: 11px;
+  font-style: italic;
+  float: right;
+  color: #a9a9a9;
+}
+
+.no-border {
+  border-color: transparent !important;
+}
+
+.drop:hover {
+  transform: scale(1.2, 1.2);
+  transition-duration: 500ms;
+  transition-timing-function: ease-out;
+  opacity: 0.7;
+  cursor: pointer;
 }
