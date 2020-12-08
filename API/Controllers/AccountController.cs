@@ -19,8 +19,10 @@ namespace API.Controllers
     private readonly IMapper _mapper;
     private readonly SignInManager<AppUser> _signInManager;
     private readonly UserManager<AppUser> _userManager;
-    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService tokenService, IMapper mapper)
+    private readonly IUnitOfWork _unitOfWork;
+    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService tokenService, IMapper mapper, IUnitOfWork unitOfWork)
     {
+      _unitOfWork = unitOfWork;
       _userManager = userManager;
       _signInManager = signInManager;
       _mapper = mapper;
@@ -76,9 +78,35 @@ namespace API.Controllers
       };
     }
 
+    [HttpPost("change-password")]
+    public async Task<ActionResult> ChangePassowrd(ChangePasswordDto changePasswordDto)
+    {
+     var user = await _userManager.Users.SingleOrDefaultAsync(x => x.UserName == changePasswordDto.Username.ToLower());
+
+    var passwordCompare = IsValidPassword(user, changePasswordDto.OldPassword, user.PasswordHash);
+
+    if (passwordCompare != true) return BadRequest("Incorrect Old password");
+
+     if (changePasswordDto.OldPassword == changePasswordDto.NewPassword) return BadRequest("New password cannot be same as old password");
+
+      var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+
+      if (!result.Succeeded) return BadRequest(result.Errors);
+    
+      return NoContent();
+    }
+
     private async Task<bool> UserExists(string username)
     {
       return await _userManager.Users.AnyAsync(x => x.UserName == username.ToLower());
     }
+    private bool IsValidPassword(AppUser user, string password, string hash)
+        {
+            PasswordHasher<AppUser> hasher = new PasswordHasher<AppUser>();
+            PasswordVerificationResult result = hasher.VerifyHashedPassword(user, hash, password);
+            if (result == PasswordVerificationResult.Success) return true;
+
+            return false;
+        }
   }
 }

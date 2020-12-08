@@ -11,6 +11,7 @@ using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,8 +23,10 @@ namespace API.Controllers
     private readonly IMapper _mapper;
     private readonly IPhotoService _photoService;
     private readonly IUnitOfWork _unitOfWork;
-    public UsersController(IUnitOfWork unitOfWork, IMapper mapper, IPhotoService photoService)
+    private readonly UserManager<AppUser> _userManager;
+    public UsersController(UserManager<AppUser> userManager, IUnitOfWork unitOfWork, IMapper mapper, IPhotoService photoService)
     {
+      _userManager = userManager;
       _unitOfWork = unitOfWork;
       _photoService = photoService;
       _mapper = mapper;
@@ -68,6 +71,7 @@ namespace API.Controllers
 
       return BadRequest("Failed to update user");
     }
+
 
     [HttpPost("add-photo")]
     public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
