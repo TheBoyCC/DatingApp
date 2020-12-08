@@ -101,12 +101,11 @@ namespace API.Data
         foreach (var message in unreadMessages)
         {
             message.DateRead = DateTime.UtcNow;
-        }       
+        } 
       }  
 
       return messages;
     }
-
     public void RemoveConnection(Connection connection)
     {
       _context.Connections.Remove(connection);
