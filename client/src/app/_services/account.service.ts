@@ -54,6 +54,10 @@ export class AccountService {
     this.presence.stopHubConnection();
   }
 
+  changePassword(model: any) {
+    return this.http.post(this.baseUrl + 'account/change-password', model, {});
+  }
+
   getDecodedToken(token) {
     return JSON.parse(atob(token.split('.')[1]));
   }
