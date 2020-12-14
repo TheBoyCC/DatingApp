@@ -1,3 +1,6 @@
+import { Message } from './message';
+
+
 export interface User {
   username: string;
   token: string;
@@ -5,4 +8,5 @@ export interface User {
   knownAs: string;
   gender: string;
   roles: string[];
+  messages: Message[];
 }
