@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
   <div class="container">
-    <a class="navbar-brand" routerLink="/" routerLinkActive="active">Dating App</a>
+    <a class="navbar-brand" routerLink="/" routerLinkActive="active">Mate Finder</a>
     <ul class="navbar-nav mr-auto">
       <ng-container *ngIf="accountService.currentUser$ | async">
         <li class="nav-item">
@@ -21,37 +21,37 @@
       </ng-container>
     </ul>
 
-    <div dropdown class="mr-3 dropdown" *ngIf="(accountService.currentUser$ | async) && unreadMessages > 0">
-      <a dropdownToggle class="drop">
-        <i class="fa fa-envelope text-light">
-          <span class="badge badge-pill badge-danger">{{unreadMessages}}</span>
-        </i>
-      </a>
-      <div *dropdownMenu class="dropdown-menu box-md mt-4" #scroll style="overflow: scroll; height: 250px;" [scrollTop]="scroll.scrollHeight">
-        <p class="dropdown-item mb-0 text-center" style="border-bottom: 1px solid #B3A9A9;">You have {{unreadMessages}} new messages </p>
-        <ul class="chat">
-          <li *ngFor="let message of messages" class="dropdown-item" routerLink='{{"/members/" + message.senderUsername}}' [queryParams]='{tab: 3}'>
-            <div>
-              <span class="chat-img float-left mr-2">
-                <img class="rounded-circle" src="{{message.senderPhotoUrl || './assets/user.png'}}"
-                  alt="{{message.senderUsername}}">
-              </span>
-              <div class="chat-body">
-                <div class="header">
-                  <small class="text-muted float-right">
-                    <span class="fa fa-clock-o">{{message.messageSent | timeago}}</span>                    
-                  </small>
+    <ng-container  *ngIf="(accountService.currentUser$ | async) as user">
+      <div dropdown class="mr-3 dropdown" *ngIf="user.messages.length > 0">
+        <a dropdownToggle class="drop">
+          <i class="fa fa-envelope text-light">
+            <span class="badge badge-pill badge-danger">{{user.messages.length}}</span>
+          </i>
+        </a>
+        <div *dropdownMenu class="dropdown-menu box-md mt-4" #scroll style="overflow: scroll; height: 250px;" [scrollTop]="scroll.scrollHeight">
+          <p class="dropdown-item mb-0 text-center" style="border-bottom: 1px solid #B3A9A9;">You have {{user.messages.length}} new messages </p>
+          <ul class="chat">
+            <li *ngFor="let message of user.messages" class="dropdown-item" routerLink='{{"/members/" + message.senderUsername}}' [queryParams]='{tab: 3}'>
+              <div>
+                <span class="chat-img float-left mr-2">
+                  <img class="rounded-circle" src="{{message.senderPhotoUrl || './assets/user.png'}}"
+                    alt="{{message.senderUsername}}">
+                </span>
+                <div class="chat-body">
+                  <div class="header">
+                    <small class="text-muted float-right">
+                      <span class="fa fa-clock-o">{{message.messageSent | timeago}}</span>                    
+                    </small>
+                  </div>
+                  <p>{{message.content}}</p>
                 </div>
-                <p>{{message.content}}</p>
-              </div>
-            </div>            
-          </li>
-        </ul>
+              </div>            
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-
-
-
+    </ng-container>
+ 
 
     <div class="dropdown" *ngIf="(accountService.currentUser$ | async) as user" dropdown>
       <img class="img-circle rounded-circle" src="{{user.photoUrl || '/assets/user.png'}}" alt="{{user.username}}">
