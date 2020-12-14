@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using API.Data;
 using API.Helpers;
 using API.Interfaces;
@@ -8,6 +9,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Protocols;
 
 namespace API.Extensions
 {
@@ -30,6 +32,8 @@ namespace API.Extensions
 
         // Depending on if in development or production, use either Heroku-provided
         // connection string, or development connection string from env var.
+
+       
         if (env == "Development")
         {
           // Use connection string from file.
@@ -37,6 +41,8 @@ namespace API.Extensions
         }
         else
         {
+           //connStr = config.GetConnectionString("DefaultConnection");
+
           // Use connection string provided at runtime by Heroku.
           var connUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
