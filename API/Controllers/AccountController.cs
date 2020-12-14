@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using AutoMapper.QueryableExtensions;
 
 namespace API.Controllers
 {
@@ -20,8 +21,10 @@ namespace API.Controllers
     private readonly SignInManager<AppUser> _signInManager;
     private readonly UserManager<AppUser> _userManager;
     private readonly IUnitOfWork _unitOfWork;
-    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService tokenService, IMapper mapper, IUnitOfWork unitOfWork)
+    private readonly DataContext _context;
+    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService tokenService, IMapper mapper, IUnitOfWork unitOfWork, DataContext context)
     {
+      _context = context;
       _unitOfWork = unitOfWork;
       _userManager = userManager;
       _signInManager = signInManager;
@@ -68,31 +71,36 @@ namespace API.Controllers
 
       if (!results.Succeeded) return Unauthorized();
 
+      var unreadMessages = await _context.Messages.Where(m => m.DateRead == null && m.RecipientUsername == loginDto.Username)
+        .ProjectTo<MessageDto>(_mapper.ConfigurationProvider)
+        .ToListAsync();
+
       return new UserDto
       {
         Username = user.UserName,
         Token = await _tokenService.CreateToken(user),
         PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url,
         KnownAs = user.KnownAs,
-        Gender = user.Gender
+        Gender = user.Gender,
+        Messages = unreadMessages
       };
     }
 
     [HttpPost("change-password")]
     public async Task<ActionResult> ChangePassowrd(ChangePasswordDto changePasswordDto)
     {
-     var user = await _userManager.Users.SingleOrDefaultAsync(x => x.UserName == changePasswordDto.Username.ToLower());
+      var user = await _userManager.Users.SingleOrDefaultAsync(x => x.UserName == changePasswordDto.Username.ToLower());
 
-    var passwordCompare = IsValidPassword(user, changePasswordDto.OldPassword, user.PasswordHash);
+      var passwordCompare = IsValidPassword(user, changePasswordDto.OldPassword, user.PasswordHash);
 
-    if (passwordCompare != true) return BadRequest("Incorrect Old password");
+      if (passwordCompare != true) return BadRequest("Incorrect Old password");
 
-     if (changePasswordDto.OldPassword == changePasswordDto.NewPassword) return BadRequest("New password cannot be same as old password");
+      if (changePasswordDto.OldPassword == changePasswordDto.NewPassword) return BadRequest("New password cannot be same as old password");
 
       var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
 
       if (!result.Succeeded) return BadRequest(result.Errors);
-    
+
       return NoContent();
     }
 
@@ -101,12 +109,12 @@ namespace API.Controllers
       return await _userManager.Users.AnyAsync(x => x.UserName == username.ToLower());
     }
     private bool IsValidPassword(AppUser user, string password, string hash)
-        {
-            PasswordHasher<AppUser> hasher = new PasswordHasher<AppUser>();
-            PasswordVerificationResult result = hasher.VerifyHashedPassword(user, hash, password);
-            if (result == PasswordVerificationResult.Success) return true;
+    {
+      PasswordHasher<AppUser> hasher = new PasswordHasher<AppUser>();
+      PasswordVerificationResult result = hasher.VerifyHashedPassword(user, hash, password);
+      if (result == PasswordVerificationResult.Success) return true;
 
-            return false;
-        }
+      return false;
+    }
   }
 }
