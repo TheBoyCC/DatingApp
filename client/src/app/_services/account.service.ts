@@ -3,7 +3,9 @@ import { Injectable } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { Message } from '../_models/message';
 import { User } from '../_models/user';
+import { MessageService } from './message.service';
 import { PresenceService } from './presence.service';
 
 @Injectable({
@@ -11,11 +13,13 @@ import { PresenceService } from './presence.service';
 })
 export class AccountService {
   baseUrl = environment.apiUrl;
+  messages: Message[] = [];
+  unreadMessages: number;
 
   private currentUserSource = new ReplaySubject<User>(1);
   currentUser$ = this.currentUserSource.asObservable();
 
-  constructor(private http: HttpClient, private presence: PresenceService) { }
+  constructor(private http: HttpClient, private presence: PresenceService, private messageService: MessageService) { }
 
   login(model: any) {
     return this.http.post(this.baseUrl + 'account/login', model).pipe(
@@ -35,6 +39,7 @@ export class AccountService {
         if (user) {
            this.setCurrentUser(user);
            this.presence.createHubConnection(user);
+           this.messages = user.messages;
         }
       })
     )
@@ -60,5 +65,12 @@ export class AccountService {
 
   getDecodedToken(token) {
     return JSON.parse(atob(token.split('.')[1]));
+  }
+
+  loadMessages() {
+    this.messageService.getMessages(1, 5, 'Unread').subscribe(response => {
+      this.messages = response.result;   
+      this.unreadMessages = this.messages.length;
+    })
   }
 }
