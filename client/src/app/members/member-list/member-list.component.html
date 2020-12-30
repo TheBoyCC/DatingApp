@@ -30,13 +30,11 @@
         <button type="button" class="btn btn-primary" name="orderBy" [(ngModel)]="userParams.orderBy" (click)="loadMembers()" btnRadio='created'>Newest Members</button>
       </div>
     </div>
-    
-
   </form>
 </div>
 
 <div class="row">
-  <div *ngFor="let member of members" class="col-2">
+  <div *ngFor="let member of members" class="col-sm-4 col-md-2">
     <app-member-card [member]="member"></app-member-card>
   </div>
 </div>
